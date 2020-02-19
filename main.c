@@ -1,8 +1,7 @@
 #include "includes/minishell.h"
 
-int main(int argc, char **argv, char **env)
-{
-    struct stat	buff;
+int main(int argc, char **argv, char **env) {
+    /*struct stat	buff;
     int			fd;
     int			ret;
     pid_t       pid;
@@ -35,5 +34,5 @@ int main(int argc, char **argv, char **env)
 
     if ((dup2(stds[0], STDIN_FILENO)) < 1)
         return (-1);
-    close(fd);
+    close(fd);*/
 }
