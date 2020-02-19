@@ -82,12 +82,12 @@ void    is_pipeline(char ***cmds, int pos, int in_fd, t_data *data)
     process = fork();
     if (process == 0)
     {
+        redirect(in_fd, STDIN_FILENO);
         if (data->redirects[pos].type > 0)
             data->fd[1] = redirect_output(data->redirects[pos]);
         else
-            redirect(in_fd, STDIN_FILENO);
-        if (pos > 0)
-            close(in_fd);
+            redirect(data->pipe[1], 1);
+        close(data->pipe[1]);
         run_command(data, cmds[pos]);
         exit(EXIT_SUCCESS);
     }
