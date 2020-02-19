@@ -85,8 +85,6 @@ void    is_pipeline(char ***cmds, int pos, int in_fd, t_data *data)
         redirect(in_fd, STDIN_FILENO);
         if (data->redirects[pos].type > 0)
             data->fd[1] = redirect_output(data->redirects[pos]);
-        else
-            redirect(data->pipe[1], 1);
         close(data->pipe[1]);
         run_command(data, cmds[pos]);
         exit(EXIT_SUCCESS);
@@ -94,7 +92,7 @@ void    is_pipeline(char ***cmds, int pos, int in_fd, t_data *data)
     close(in_fd);
 }
 
-void    exec_papa(char ***cmds, int pos, int in_fd, t_data *data)
+void    exec_fils(char ***cmds, int pos, int in_fd, t_data *data)
 {
     close(data->pipe[0]);
     redirect(in_fd, STDIN_FILENO);
@@ -107,7 +105,7 @@ void    exec_papa(char ***cmds, int pos, int in_fd, t_data *data)
     exit(EXIT_FAILURE);
 }
 
-void    exec_fils(char ***cmds, int pos, int in_fd, t_data *data)
+void    exec_papa(char ***cmds, int pos, int in_fd, t_data *data)
 {
     if (pos > 0)
         close(in_fd);
@@ -135,9 +133,9 @@ void    exec_pipeline(char ***cmds, int pos, int in_fd, t_data *data)
 	    pipe(data->pipe);
 		process = fork();
 		if (process == 0)
-		    exec_papa(cmds, pos, in_fd, data);
+		    exec_fils(cmds, pos, in_fd, data);
 		else
-            exec_fils(cmds, pos, in_fd, data);
+            exec_papa(cmds, pos, in_fd, data);
     }
 }
 
