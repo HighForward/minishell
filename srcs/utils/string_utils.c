@@ -1,21 +1,5 @@
 #include "../../includes/minishell.h"
 
-int		get_next_char(char *str, char c)
-{
-	int	index;
-
-	index = 0;
-	while (str[index])
-	{
-		if (str[index] == c)
-			return (index);
-		index++;
-	}
-	if (str[index] == c)
-		return (index);
-	return (-1);
-}
-
 int		get_last_char(char *str, char c)
 {
 	int	index;
@@ -36,9 +20,12 @@ int		get_last_char(char *str, char c)
 
 void	write_preline(t_data *data)
 {
-	ft_printf(PRE_LINE, ((get_last_char(data->cwd, '/') != -1
-	&& ft_strlen(data->cwd) != 1) ?
-	data->cwd + get_last_char(data->cwd, '/') + 1 : data->cwd));
+	if (isatty(0))
+	{
+		ft_printf(PRE_LINE, ((get_last_char(data->cwd, '/') != -1
+		&& ft_strlen(data->cwd) != 1) ?
+		data->cwd + get_last_char(data->cwd, '/') + 1 : data->cwd));
+	}
 }
 
 int		count_char(char *str, char c)
@@ -47,8 +34,8 @@ int		count_char(char *str, char c)
 	int	counter;
 	int	quotes[2];
 
-	init_int(&index, &counter);
-	init_int(&quotes[0], &quotes[1]);
+	init_int(&index, &counter, 0, 0);
+	init_int(&quotes[0], &quotes[1], 0, 0);
 	while (str[index])
 	{
 		if (str[index] == '"' && !quotes[0])
@@ -72,15 +59,16 @@ int		remove_quotes(char **str)
 	x = ft_strlen(*str) - (count_char(*str, '\'') + count_char(*str, '"'));
 	if (!(new = ft_strnew(x)))
 		return (-1);
-	init_int(&i, &x);
-	init_int(&quotes[0], &quotes[1]);
+	init_int(&i, &x, 0, 0);
+	init_int(&quotes[0], &quotes[1], 0, 0);
 	while ((*str)[i])
 	{
 		if ((*str)[i] == '"' && !quotes[0])
 			quotes[1] = !quotes[1];
 		if ((*str)[i] == '\'' && !quotes[1])
 			quotes[0] = !quotes[0];
-		if (((*str)[i] != '"' && (*str)[i] != '\'') || (quotes[1] && (*str)[i] == '\'') || (quotes[0] && (*str)[i] == '"'))
+		if (((*str)[i] != '"' && (*str)[i] != '\'') ||
+		(quotes[1] && (*str)[i] == '\'') || (quotes[0] && (*str)[i] == '"'))
 			new[x++] = (*str)[i];
 		i++;
 	}

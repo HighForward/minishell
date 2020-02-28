@@ -11,10 +11,13 @@ SRCSC		=	libs/get_next_line/get_next_line.c\
 				libs/get_next_line/get_next_line_utils.c\
 				srcs/minishell.c\
 				srcs/parsing/parse_line.c\
-				srcs/parsing/arrow_right.c\
+				srcs/parsing/parsing_redirection.c\
+				srcs/parsing/parsing_redirection2.c\
 				srcs/parsing/manage_redirection.c\
-				srcs/parsing/redirection_utils.c\
+				srcs/parsing/manage_redirection2.c\
+				srcs/parsing/manage_redirection3.c\
 				srcs/parsing/handle_redirection.c\
+				srcs/parsing/handle_redirection2.c\
 				srcs/structures/init_struct.c\
 				srcs/exec_command/command_env.c\
 				srcs/exec_command/command_pwd.c\
@@ -22,11 +25,14 @@ SRCSC		=	libs/get_next_line/get_next_line.c\
 				srcs/exec_command/command_cd.c\
 				srcs/exec_command/command_unset.c\
 				srcs/exec_command/command_export.c\
+				srcs/exec_command/command_export2.c\
 				srcs/exec_command/exec_prog.c\
+				srcs/utils/redirection_utils.c\
 				srcs/utils/split_spec.c\
 				srcs/utils/string_utils.c\
 				srcs/utils/errors.c\
 				srcs/utils/replace_env.c\
+				srcs/utils/replace_env2.c\
 				srcs/utils/utils.c\
 				srcs/utils/get_env.c
 
@@ -43,7 +49,7 @@ ${NAME}:	header ${OBJS}
 			@printf "\033[2K\033[0;35mLIBFT\033[0;0m:        \033[0;32mCompleted         \033[0;31m----\033[0;0m          \r\n"
 			@make -C libs/ft_printf
 			@printf "\033[2K\033[0;35mFT_PRINTF\033[0;0m:    \033[0;32mCompleted         \033[0;31m----\033[0;0m          \r"
-			@${CC} ${CFLAGS} ${OBJS} -L ./libs/libft -lft -L ./libs/ft_printf -lftprintf -o ${NAME}
+			@${CC} -g -fsanitize=address ${CFLAGS} ${OBJS} -L ./libs/libft -lft -L ./libs/ft_printf -lftprintf -o ${NAME}
 			@printf "\n\033[0;0m⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤\n\033[0;35mMINISHELL\033[0;0m:    \033[0;32mReady             \033[0;31m----          \033[0;0m\n⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤⏤\n"
 
 run:		${NAME}

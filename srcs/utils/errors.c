@@ -1,9 +1,6 @@
 
 #include "../../includes/minishell.h"
 
-/*
- ** free string split
- */
 int		fsp(char **splitted, char *str, int code, char *message)
 {
 	int i;
@@ -47,11 +44,9 @@ int		free_splitted(char **splitted, int code)
 	return (code);
 }
 
-int	quit(char *error, int code)
+void	error_command_nf(char *command)
 {
 	ft_putstr_fd("minishell: ", 2);
-	ft_putstr_fd(error, 2);
-	ft_putstr_fd("\n", 2);
-	exit(code);
-	return (code);
+	ft_putstr_fd(command, 2);
+	ft_putstr_fd(": command not found\n", 2);
 }

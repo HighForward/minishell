@@ -1,64 +1,71 @@
 #include "../../includes/minishell.h"
 
-int	get_path(t_data *data, char **cmds)
+int		is_regular_file(char *file)
 {
 	struct stat	buff;
-	char		**paths;
-	char		*joined;
-	char		*tmp;
-	int			index;
 
-	index = 0;
-	data->command = cmds[0];
-	stat(data->command, &buff);
-	if (!S_ISREG(buff.st_mode))
+	if (stat(file, &buff) == -1)
+		return (0);
+	return (S_ISREG(buff.st_mode));
+}
+
+char	*get_real_path(char *dir, char *command)
+{
+	char	*tmp;
+	char	*path;
+
+	if (!(path = ft_strjoin(dir, "/")))
+		return (NULL);
+	tmp = path;
+	if (!(path = ft_strjoin(path, command)))
+		return (NULL);
+	free(tmp);
+	return (path);
+}
+
+void	free_and_replace(char **dest, char *src)
+{
+	free(*dest);
+	*dest = src;
+}
+
+int		get_path(t_data *data, char **cmds)
+{
+	char	**paths;
+	char	**save;
+	char	*path;
+
+	if (!is_regular_file(cmds[0]) || ft_strncmp(cmds[0], "./", 2))
 	{
-		if (!(joined = get_env_str(data, "PATH")))
-			return (0);
-		paths = ft_split(joined, ':');
-		free(joined);
-		while (paths[index])
+		if (!(path = get_env(data, "PATH")))
+			return (EXIT_FAILURE);
+		if (!(paths = ft_split(path, ':')))
+			return (free_string(&path, EXIT_FAILURE));
+		save = paths;
+		free(path);
+		while (*paths)
 		{
-			joined = ft_strjoin(paths[index], "/");
-			tmp = joined;
-			stat((joined = ft_strjoin(joined, data->command)), &buff);
-			free(tmp);
-			if (S_ISREG(buff.st_mode))
+			if (!(path = get_real_path(*(paths++), cmds[0])))
+				return (free_splitted(paths - 1, EXIT_FAILURE));
+			if (is_regular_file(path))
 			{
-				free(cmds[0]);
-				cmds[0] = joined;
-				break;
+				free_and_replace(&cmds[0], path);
+				break ;
 			}
-			free(joined);
-			index++;
 		}
-		free_splitted(paths, 0);
+		free_splitted(save, 0);
 	}
 	return (EXIT_SUCCESS);
 }
 
-int	exec_prog(t_data *data, char **cmds)
+int		exec_prog(t_data *data, char **cmds, int *ret)
 {
-	char		*tmp;
-	int			index;
-
-	index = 0;
-	get_path(data, cmds);
-	index = 0;
-	while (cmds[index])
+	if (get_path(data, cmds) == EXIT_FAILURE ||
+	((*ret = execve(cmds[0], cmds, data->env)) == -1))
 	{
-		tmp = cmds[index];
-		cmds[index] = ft_strtrim(cmds[index], "\"'");
-		free(tmp);
-		index++;
+		error_command_nf(cmds[0]);
+		exit(127);
+		return (EXIT_FAILURE);
 	}
-//	redirection_hub(data, cmds);
-	if (execve(cmds[0], cmds, data->env) == -1)
-	{
-		ft_putstr_fd("minishell: ", 2);
-		ft_putstr_fd(cmds[0], 2);
-		ft_putstr_fd(": command not found\n", 2);
-		return (0);
-	}
-	return (1);
+	return (EXIT_SUCCESS);
 }

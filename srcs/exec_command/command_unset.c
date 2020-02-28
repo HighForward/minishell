@@ -1,70 +1,62 @@
 
 #include "../../includes/minishell.h"
 
-int		get_unset_tab(t_data *data, int i)
+int		is_in_env(t_data *data, char *env_line)
 {
-	char	**str;
-	int		j;
-	int		x;
+	int	index;
 
-	x = 0;
-	if (!(str = malloc(sizeof(char*) * (tabsize(data->env)))))
-		return (0);
-	j = 0;
-	while (x < i)
+	index = 0;
+	while (data->env[index])
 	{
-		str[x] = ft_strdup(data->env[j]);
-		x++;
-		j++;
+		if (ft_strcmp(data->env[index], env_line) == 0 &&
+		ft_strlen(data->env[index]) == ft_strlen(env_line))
+			return (1);
+		index++;
 	}
-	j++;
-	while (data->env[j])
+	return (0);
+}
+
+int		remove_env(t_data *data, char *env_line)
+{
+	char	**new_env;
+	int		index;
+	int		index2;
+	char	*tmp;
+
+	index = 0;
+	index2 = 0;
+	if (!(new_env = malloc(sizeof(char *) * tabsize(data->env) +
+			1 + (is_in_env(data, env_line) ? -1 : 0))))
+		return (EXIT_FAILURE);
+	while (data->env[index])
 	{
-		str[x] = ft_strdup(data->env[j]);
-		x++;
-		j++;
+		if (!(tmp = ft_substr(data->env[index], 0,
+				get_first_char(data->env[index], '='))))
+			return (EXIT_FAILURE);
+		if (ft_strcmp(tmp, env_line))
+			new_env[index2++] = ft_strdup(data->env[index]);
+		free(tmp);
+		index++;
 	}
-	str[x] = 0;
+	new_env[index2] = NULL;
 	free_splitted(data->env, 0);
-	data->env = str;
-	return (1);
+	data->env = new_env;
+	return (EXIT_SUCCESS);
 }
 
 int		exec_unset(t_data *data, char **cmds)
 {
-	int		i;
 	int		index;
-	char	**split;
 
 	index = 0;
-	i = 0;
 	data->arguments = cmds + 1;
 	if (tabsize(data->arguments) < 1)
-		return (EXIT_FAILURE);
-	while (tabsize(data->env) > i && data->env[i])
+		return (EXIT_SUCCESS);
+	while (data->arguments[index])
 	{
-		split = ft_split(data->env[i], '=');
-		if (ft_strcmp(split[0], data->arguments[index]) == 0)
-		{
-			if (ft_strlen(split[0]) == ft_strlen(data->arguments[index]))
-			{
-				get_unset_tab(data, i);
-				if (data->arguments[index + 1])
-				{
-					free_splitted(split, 0);
-					i = 0;
-					index++;
-					continue;
-				}
-			}
-		}
-		free_splitted(split, 0);
-		i++;
-		if (i >= tabsize(data->env) && data->arguments[index + 1])
-		{
-			i = 0;
-			index++;
-		}
+		if (remove_env(data, data->arguments[index]) == EXIT_FAILURE)
+			return (EXIT_FAILURE);
+		index++;
 	}
 	return (EXIT_SUCCESS);
 }
